@@ -8,6 +8,8 @@ on:
     branches: [ master, development ]
   pull_request:
     branches: [ master, development ]
+  workflow_dispatch:
+    branches: [ master, development ]
 
 jobs:
   build:
@@ -20,7 +22,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 15
-    - uses: actions/cache@v1
+    - uses: actions/cache@v2.1.4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
