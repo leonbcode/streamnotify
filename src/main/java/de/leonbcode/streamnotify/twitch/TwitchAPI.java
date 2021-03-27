@@ -49,7 +49,7 @@ public class TwitchAPI {
         Optional<String> data = sendHttpRequest(tokenUrl, "POST", null);
         if (data.isEmpty()) {
             System.out.println("No valid accesstoken!");
-            System.exit(0);
+            System.exit(1);
         }
         return data.get().substring(17, 47);
     }
