@@ -3,36 +3,35 @@ package de.leonbcode.streamnotify;
 import de.leonbcode.streamnotify.jda.Bot;
 import de.leonbcode.streamnotify.twitch.TwitchAPI;
 import de.leonbcode.streamnotify.twitch.TwitchStream;
-import lombok.Data;
 import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Data
+
 public class Manager {
 
     @Getter
     public static Manager instance;
 
+    @Getter
     private final Config config;
+    @Getter
     private final Bot bot;
+    @Getter
     private final TwitchAPI twitchAPI;
+    @Getter
     private final List<TwitchStream> streams = new ArrayList<>();
 
     public Manager() {
         instance = this;
 
-        Optional<Config> cfg = loadConfig();
-        if (cfg.isPresent()) {
-            config = cfg.get();
-        } else {
-            System.out.println("No config available.");
-            config = null;
-            System.exit(0);
+        config = loadConfig("./config.yml");
+        if (!config.validate()) {
+            System.out.println("Invalid config!");
+            System.exit(1);
         }
 
         bot = new Bot();
@@ -47,12 +46,12 @@ public class Manager {
         }
     }
 
-    private Optional<Config> loadConfig() {
+    private <T> T loadConfig(String path) {
         String[] configTemplate = {"!!de.leonbcode.streamnotify.Config", "#Discord", "botToken: ", "channelID: ", "\n", "#Twitch", "clientID: ", "clientSecret: ", "streamers:", "  - "};
-        Config config;
+        T config;
         InputStream inputStream;
         Yaml yaml = new Yaml();
-        File file = new File("config.yml");
+        File file = new File(path);
         try {
             if (file.createNewFile()) {
                 FileWriter fileWriter = new FileWriter(file);
@@ -61,15 +60,15 @@ public class Manager {
                 fileWriter.close();
                 System.out.println("Created config file.");
                 System.out.println("Enter the credentials in the config file!");
-                System.exit(0);
+                System.exit(1);
             } else {
                 inputStream = new FileInputStream("config.yml");
                 config = yaml.load(inputStream);
-                return Optional.of(config);
+                return config;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Optional.empty();
+        return null;
     }
 }
